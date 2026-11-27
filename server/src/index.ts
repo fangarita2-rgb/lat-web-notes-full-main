@@ -9,7 +9,6 @@ import authRoutes from './routes/auth.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.set('trust proxy', 1);
 
@@ -31,15 +30,12 @@ app.use(authRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
+// Conexión a MongoDB (solo conecta, no llama a app.listen)
 mongoose
   .connect(process.env.MONGO_URI!, { maxPoolSize: 10 })
-  .then(() => {
-    console.log('Conectado a MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Servidor ejecutándose en el puerto ${PORT}`);
-    });
-  })
   .catch((err) => {
-    console.error('Error de conexión', err);
-    process.exit(1);
+    console.error('Error de conexión a MongoDB:', err);
   });
+
+// Exportar la app para Vercel (serverless)
+export default app;
